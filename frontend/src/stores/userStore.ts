@@ -1,19 +1,7 @@
 "use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-type UserState = {
-  name: string;
-  age: number;
-  email: string;
-  isOnline: boolean;
-
-  setName: (name: string) => void;
-  setAge: (age: number) => void;
-  setEmail: (email: string) => void;
-  setIsOnline: (isOnline: boolean) => void;
-  getFullInfo: () => string;
-};
+import { UserState } from "../types/stores";
 
 export const useUserState = create<UserState>()(
   persist(

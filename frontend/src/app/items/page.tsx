@@ -1,20 +1,15 @@
+// app/cart/page.tsx
 "use client";
 
-import { itemStore } from "@/stores/itemStore";
-import { useEffect, useState } from "react";
+import { useCartStore } from "@/stores/itemStore";
+import { useNotificationStore } from "@/stores/notificationStore";
 
 export default function CartPage() {
-  const [mounted, setMounted] = useState(false);
-  const items = itemStore((state) => state.items);
-  const addItem = itemStore((state) => state.addItem);
-  const removeItem = itemStore((state) => state.removeItem);
-  const getTotalPrice = itemStore((state) => state.getTotalPrice);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
+  const items = useCartStore((state) => state.items);
+  const addItem = useCartStore((state) => state.addItem);
+  const removeItem = useCartStore((state) => state.removeItem);
+  const getTotalPrice = useCartStore((state) => state.getTotalPrice);
+  const notifications = useNotificationStore((state) => state.notifications);
 
   const addSampleItem = () => {
     addItem({
@@ -28,6 +23,20 @@ export default function CartPage() {
   return (
     <div className="min-h-screen p-8 bg-gray-50">
       <h1 className="text-4xl font-bold mb-8">Shopping Cart</h1>
+
+      {/* Notification Display */}
+      {notifications.length > 0 && (
+        <div className="mb-6 space-y-2">
+          {notifications.map((notification) => (
+            <div
+              key={notification.id}
+              className={`p-4 rounded ${notification.type === "success" ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"}`}
+            >
+              {notification.message}
+            </div>
+          ))}
+        </div>
+      )}
 
       <button onClick={addSampleItem} className="mb-6 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
         Add Pizza ($12)
@@ -54,8 +63,6 @@ export default function CartPage() {
       </div>
 
       <div className="mt-8 text-2xl font-bold">Total: ${getTotalPrice().toFixed(2)}</div>
-
-      <p className="mt-4 text-sm text-gray-600">Refresh the page - your cart persists! 🎉</p>
     </div>
   );
 }

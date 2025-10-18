@@ -1,46 +1,45 @@
+// src/stores/cartStore.ts
 "use client";
+
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { CartState } from "@/types/stores";
+import { useNotificationStore } from "./notificationStore";
 
-type CartItem = {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-};
-
-type CartState = {
-  items: CartItem[];
-  addItem: (item: CartItem) => void;
-  removeItem: (id: string) => void;
-  getTotalPrice: () => number;
-};
-
-export const itemStore = create<CartState>()(
+export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
 
-      addItem: (item: CartItem) =>
+      addItem: (item) => {
         set((state) => ({
           items: [...state.items, item],
-        })),
+        }));
 
-      removeItem: (id: string) =>
+        // Show success notification
+        useNotificationStore.getState().addNotification(`${item.name} added to cart!`, "success");
+      },
+
+      removeItem: (id) => {
+        const item = get().items.find((i) => i.id === id);
+
         set((state) => ({
           items: state.items.filter((item) => item.id !== id),
-        })),
+        }));
+
+        // Show info notification
+        if (item) {
+          useNotificationStore.getState().addNotification(`${item.name} removed from cart`, "info");
+        }
+      },
 
       getTotalPrice: () => {
         const state = get();
-        return state.items.reduce(
-          (total, item) => total + item.price * item.quantity,
-          0
-        );
+        return state.items.reduce((total, item) => total + item.price * item.quantity, 0);
       },
     }),
     {
-      name: "cart-store",
+      name: "cart-storage",
     },
   ),
 );
